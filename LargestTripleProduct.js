@@ -1,5 +1,3 @@
-// Largest triple product
-
 // Add any extra import statements you may need here
 
 
@@ -31,7 +29,7 @@ class Heap{
   heapify(i){
     let largest = i;
     const left = 2 * i + 1;
-    const right = 2 * i + 1;
+    const right = 2 * i + 2;
     if(this.isInRange(left) && this.arr[left] > this.arr[largest]){
       largest = left;
     }
@@ -56,6 +54,21 @@ class Heap{
     if(this.size === 1) return;
     this.handleHeapify();
   }
+  
+  popRoot(){
+    //save the root value 
+    const rootVal = this.heap[0];
+    
+    //swap the root (idx = 0) with the last value (idx = this.size -1)
+    this.swap(0, this.size-1);
+    
+    // Eliminate last item
+    this.heap.pop()
+    
+    //Heapify!
+    this.handleHeapify()
+    return rootVal;
+  }
 }
 
 
@@ -63,10 +76,23 @@ function findMaxProduct(arr) {
   // Write your code here
   const myHeap = new Heap();
   return arr.map((item, idx)=>{
-    myHeap.insert(arr[idx]);
+    myHeap.insert(item);
     if(idx < 2) return -1;
-    const { heap } = myHeap;
-    return heap[0] * heap[1] * heap[2];
+    
+    
+    // Get top three items and their product
+    const topThree = []
+    let maxTripleProduct = 1; 
+    for(let i = 0; i < 3; i++){
+      const rootVal = myHeap.popRoot();
+      topThree.push(rootVal)
+      maxTripleProduct *= rootVal;
+    }
+    // Put back the current top three items
+    topThree.forEach(e => myHeap.insert(e))
+    
+    // Save their triple product.
+    return maxTripleProduct;
   })
 }
 
