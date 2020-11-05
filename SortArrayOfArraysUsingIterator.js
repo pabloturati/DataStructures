@@ -1,24 +1,7 @@
 
-const arrOfArrays = [
-  [100, 1,4,5,-1,32,9],
-  [0,-3,-6,7],
-  [15,-8,-8,5,22,12],
-  [-64,-12,2,3,22,19],
-  [1],
-]
-
-const sumOfArr = (arr) => (arr.reduce((acc, e) => (acc + e), 0))
-
-const totalSum = arrOfArrays.reduce((acc, arr) => acc + sumOfArr(arr), 0)
-
-console.log('initial lenght',totalSum)
-
-const arrCount = arrOfArrays.reduce((acc, arr)=> (acc += arr.length), 0)
-console.log(arrCount)
-
 class Iterator{
   constructor(arr){
-    this._arr = arr.sort((a,b)=>(a-b));
+    this._arr = this.sortArr(arr);
     this.pos = 0;
   }
 
@@ -37,6 +20,22 @@ class Iterator{
   get isInRange(){
     return this.pos < this._arr.length;
   }
+  
+  sortArr(unsortedArr){
+    const arr = [...unsortedArr]
+    for(let i = 0; i < arr.length-1; i++){
+      let j = i+1;
+      while(j < arr.length){
+        if(arr[i] > arr[j]){
+          const val = arr[i];
+          arr[i] = arr[j];
+          arr[j] = val;
+        }
+        j++;
+      }
+    }
+    return arr;
+  }
 
   shiftPosition(){
     this.pos += 1;
@@ -45,7 +44,6 @@ class Iterator{
 
 function sort(arrOfArrs){
   const arrOfItr = arrOfArrs.map(arr => new Iterator(arr));
-  console.log(arrOfItr);
 
   const sortedValues = [];
   
@@ -64,9 +62,6 @@ function sort(arrOfArrs){
       nextItr = arrOfItr[j];
       if(nextItr.isInRange){
         let nextVal = nextItr.topVal;
-        console.log('smallestVal', smallestVal)
-        console.log("nextVal", nextVal)
-        console.log("nextVal < smallestVal", nextVal < smallestVal)
 
         if(nextVal < smallestVal){
           smallestVal = nextVal;
@@ -75,16 +70,58 @@ function sort(arrOfArrs){
       }
       j++;
     }
-    console.log("smallestVal -----", smallestVal);
     smallestItr.shiftPosition();
     sortedValues.push(smallestVal);
   }
-
-  console.log(sortedValues.length);
-  
   return ([ ...sortedValues ])
 }
 
-const result = sort(arrOfArrays)
-console.log(result)
-console.log(result.length)
+//Sample input
+const arrOfArrays = [
+  [100, 1,4,5,-1,32,9],
+  [0,-3,-6,7],
+  [15,-8,-8,5,22,12],
+  [-64,-12,2,3,22,19],
+  [1],
+];
+
+// Run algorithm
+const iterativeSolution = sort(arrOfArrays);
+
+// Run alternate solution
+let altSol = [];
+arrOfArrays.forEach(arr=>(altSol = [ ...altSol, ...arr ]))
+altSol.sort((a,b)=>(a-b))
+
+/* TESTS */
+
+// Test for same length
+const arrCount = arrOfArrays.reduce((acc, arr)=> (acc += arr.length), 0);
+
+const bothSolutionLenghtsAreEqual = 
+  iterativeSolution.length === altSol.length;
+
+console.assert(bothSolutionLenghtsAreEqual);
+
+// Test for same sum on input, iterative and alternate solutions
+
+const sumOfArr = (arr) => 
+  (arr.reduce((acc, e) => (acc + e), 0));
+
+const totalSum = arrayWithArrays =>
+  arrayWithArrays.reduce((acc, arr) => acc + sumOfArr(arr), 0);
+
+console.assert(
+  totalSum(arrOfArrays) ===
+  sumOfArr(iterativeSolution) === sumOfArr(altSol)
+)
+
+// Test for same values
+
+const bothSolutionsAreEqual = iterativeSolution
+    .reduce((acc, item, idx) => (acc && item === altSol[idx]), true)
+
+console.assert(bothSolutionsAreEqual)
+
+console.log('Iterative solution', iterativeSolution);
+console.log('Alternate solution', altSol);
